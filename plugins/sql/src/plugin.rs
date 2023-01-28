@@ -257,8 +257,6 @@ async fn select(
                     "TEXT" => JsonValue::String(row.try_get(i).unwrap()),
                     #[cfg(feature = "sqlite")]
                     "REAL" => JsonValue::Number(row.try_get(i).unwrap().into()),
-                    #[cfg(feature = "sqlite")]
-                    "BLOB" => JsonValue::String(base64::encode(row.try_get(i).unwrap())),
                     #[cfg(feature = "mysql")]
                     "TINY" => JsonValue::Number(row.try_get(i).unwrap().into()),
                     #[cfg(feature = "mysql")]
@@ -294,19 +292,9 @@ async fn select(
                     #[cfg(feature = "mysql")]
                     "STRING" => JsonValue::String(row.try_get(i).unwrap()),
                     #[cfg(feature = "mysql")]
-                    "TINY_BLOB" => JsonValue::String(base64::encode(row.try_get(i).unwrap())),
-                    #[cfg(feature = "mysql")]
-                    "MEDIUM_BLOB" => JsonValue::String(base64::encode(row.try_get(i).unwrap())),
-                    #[cfg(feature = "mysql")]
-                    "LONG_BLOB" => JsonValue::String(base64::encode(row.try_get(i).unwrap())),
-                    #[cfg(feature = "mysql")]
-                    "BLOB" => JsonValue::String(base64::encode(row.try_get(i).unwrap())),
-                    #[cfg(feature = "mysql")]
                     "ENUM" => JsonValue::String(row.try_get(i).unwrap()),
                     #[cfg(feature = "mysql")]
                     "SET" => JsonValue::String(row.try_get(i).unwrap()),
-                    #[cfg(feature = "mysql")]
-                    "GEOMETRY" => JsonValue::String(base64::encode(row.try_get(i).unwrap())),
                     #[cfg(feature = "postgres")]
                     "bool" => JsonValue::Bool(row.try_get(i).unwrap()),
                     #[cfg(feature = "postgres")]
@@ -333,16 +321,12 @@ async fn select(
                     "timestamp" => JsonValue::String(row.try_get(i).unwrap()),
                     #[cfg(feature = "postgres")]
                     "timestamptz" => JsonValue::String(row.try_get(i).unwrap()),
-                    #[cfg(feature = "postgres")]
-                    "bytea" => JsonValue::String(base64::encode(row.try_get(i).unwrap())),
                     #[cfg(feature = "sqlite")]
                     "INTEGER" => JsonValue::Number(row.try_get(i).unwrap().into()),
                     #[cfg(feature = "sqlite")]
                     "REAL" => JsonValue::Number(row.try_get(i).unwrap().into()),
                     #[cfg(feature = "sqlite")]
                     "TEXT" => JsonValue::String(row.try_get(i).unwrap()),
-                    #[cfg(feature = "sqlite")]
-                    "BLOB" => JsonValue::String(base64::encode(row.try_get(i).unwrap())),
                     _ => JsonValue::Null,
                 }
             };
