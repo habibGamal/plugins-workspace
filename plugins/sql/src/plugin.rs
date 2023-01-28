@@ -251,45 +251,98 @@ async fn select(
                 JsonValue::Null
             } else {
                 match info.name() {
-                    "VARCHAR" | "STRING" | "TEXT" | "DATETIME" | "JSON" => {
-                        if let Ok(s) = row.try_get(i) {
-                            JsonValue::String(s)
-                        } else {
-                            JsonValue::Null
-                        }
-                    }
-                    "BOOL" | "BOOLEAN" => {
-                        if let Ok(b) = row.try_get(i) {
-                            JsonValue::Bool(b)
-                        } else {
-                            let x: String = row.get(i);
-                            JsonValue::Bool(x.to_lowercase() == "true")
-                        }
-                    }
-                    "INT" | "NUMBER" | "INTEGER" | "BIGINT" | "INT8" => {
-                        if let Ok(n) = row.try_get::<i64, usize>(i) {
-                            JsonValue::Number(n.into())
-                        } else {
-                            JsonValue::Null
-                        }
-                    }
-                    "REAL" => {
-                        if let Ok(n) = row.try_get::<f64, usize>(i) {
-                            JsonValue::from(n)
-                        } else {
-                            JsonValue::Null
-                        }
-                    }
-                    // "JSON" => JsonValue::Object(row.get(i)),
-                    "BLOB" => {
-                        if let Ok(n) = row.try_get::<Vec<u8>, usize>(i) {
-                            JsonValue::Array(
-                                n.into_iter().map(|n| JsonValue::Number(n.into())).collect(),
-                            )
-                        } else {
-                            JsonValue::Null
-                        }
-                    }
+                    #[cfg(feature = "sqlite")]
+                    "INTEGER" => JsonValue::Number(row.try_get(i).unwrap().into()),
+                    #[cfg(feature = "sqlite")]
+                    "TEXT" => JsonValue::String(row.try_get(i).unwrap()),
+                    #[cfg(feature = "sqlite")]
+                    "REAL" => JsonValue::Number(row.try_get(i).unwrap().into()),
+                    #[cfg(feature = "sqlite")]
+                    "BLOB" => JsonValue::String(base64::encode(row.try_get(i).unwrap())),
+                    #[cfg(feature = "mysql")]
+                    "TINY" => JsonValue::Number(row.try_get(i).unwrap().into()),
+                    #[cfg(feature = "mysql")]
+                    "SHORT" => JsonValue::Number(row.try_get(i).unwrap().into()),
+                    #[cfg(feature = "mysql")]
+                    "LONG" => JsonValue::Number(row.try_get(i).unwrap().into()),
+                    #[cfg(feature = "mysql")]
+                    "LONGLONG" => JsonValue::Number(row.try_get(i).unwrap().into()),
+                    #[cfg(feature = "mysql")]
+                    "INT24" => JsonValue::Number(row.try_get(i).unwrap().into()),
+                    #[cfg(feature = "mysql")]
+                    "YEAR" => JsonValue::Number(row.try_get(i).unwrap().into()),
+                    #[cfg(feature = "mysql")]
+                    "FLOAT" => JsonValue::Number(row.try_get(i).unwrap().into()),
+                    #[cfg(feature = "mysql")]
+                    "DOUBLE" => JsonValue::Number(row.try_get(i).unwrap().into()),
+                    #[cfg(feature = "mysql")]
+                    "BIT" => JsonValue::Number(row.try_get(i).unwrap().into()),
+                    #[cfg(feature = "mysql")]
+                    "TIMESTAMP" => JsonValue::String(row.try_get(i).unwrap()),
+                    #[cfg(feature = "mysql")]
+                    "DATE" => JsonValue::String(row.try_get(i).unwrap()),
+                    #[cfg(feature = "mysql")]
+                    "TIME" => JsonValue::String(row.try_get(i).unwrap()),
+                    #[cfg(feature = "mysql")]
+                    "DATETIME" => JsonValue::String(row.try_get(i).unwrap()),
+                    #[cfg(feature = "mysql")]
+                    "NEWDATE" => JsonValue::String(row.try_get(i).unwrap()),
+                    #[cfg(feature = "mysql")]
+                    "VARCHAR" => JsonValue::String(row.try_get(i).unwrap()),
+                    #[cfg(feature = "mysql")]
+                    "VAR_STRING" => JsonValue::String(row.try_get(i).unwrap()),
+                    #[cfg(feature = "mysql")]
+                    "STRING" => JsonValue::String(row.try_get(i).unwrap()),
+                    #[cfg(feature = "mysql")]
+                    "TINY_BLOB" => JsonValue::String(base64::encode(row.try_get(i).unwrap())),
+                    #[cfg(feature = "mysql")]
+                    "MEDIUM_BLOB" => JsonValue::String(base64::encode(row.try_get(i).unwrap())),
+                    #[cfg(feature = "mysql")]
+                    "LONG_BLOB" => JsonValue::String(base64::encode(row.try_get(i).unwrap())),
+                    #[cfg(feature = "mysql")]
+                    "BLOB" => JsonValue::String(base64::encode(row.try_get(i).unwrap())),
+                    #[cfg(feature = "mysql")]
+                    "ENUM" => JsonValue::String(row.try_get(i).unwrap()),
+                    #[cfg(feature = "mysql")]
+                    "SET" => JsonValue::String(row.try_get(i).unwrap()),
+                    #[cfg(feature = "mysql")]
+                    "GEOMETRY" => JsonValue::String(base64::encode(row.try_get(i).unwrap())),
+                    #[cfg(feature = "postgres")]
+                    "bool" => JsonValue::Bool(row.try_get(i).unwrap()),
+                    #[cfg(feature = "postgres")]
+                    "int2" => JsonValue::Number(row.try_get(i).unwrap().into()),
+                    #[cfg(feature = "postgres")]
+                    "int4" => JsonValue::Number(row.try_get(i).unwrap().into()),
+                    #[cfg(feature = "postgres")]
+                    "int8" => JsonValue::Number(row.try_get(i).unwrap().into()),
+                    #[cfg(feature = "postgres")]
+                    "float4" => JsonValue::Number(row.try_get(i).unwrap().into()),
+                    #[cfg(feature = "postgres")]
+                    "float8" => JsonValue::Number(row.try_get(i).unwrap().into()),
+                    #[cfg(feature = "postgres")]
+                    "numeric" => JsonValue::Number(row.try_get(i).unwrap().into()),
+                    #[cfg(feature = "postgres")]
+                    "text" => JsonValue::String(row.try_get(i).unwrap()),
+                    #[cfg(feature = "postgres")]
+                    "varchar" => JsonValue::String(row.try_get(i).unwrap()),
+                    #[cfg(feature = "postgres")]
+                    "date" => JsonValue::String(row.try_get(i).unwrap()),
+                    #[cfg(feature = "postgres")]
+                    "time" => JsonValue::String(row.try_get(i).unwrap()),
+                    #[cfg(feature = "postgres")]
+                    "timestamp" => JsonValue::String(row.try_get(i).unwrap()),
+                    #[cfg(feature = "postgres")]
+                    "timestamptz" => JsonValue::String(row.try_get(i).unwrap()),
+                    #[cfg(feature = "postgres")]
+                    "bytea" => JsonValue::String(base64::encode(row.try_get(i).unwrap())),
+                    #[cfg(feature = "sqlite")]
+                    "INTEGER" => JsonValue::Number(row.try_get(i).unwrap().into()),
+                    #[cfg(feature = "sqlite")]
+                    "REAL" => JsonValue::Number(row.try_get(i).unwrap().into()),
+                    #[cfg(feature = "sqlite")]
+                    "TEXT" => JsonValue::String(row.try_get(i).unwrap()),
+                    #[cfg(feature = "sqlite")]
+                    "BLOB" => JsonValue::String(base64::encode(row.try_get(i).unwrap())),
                     _ => JsonValue::Null,
                 }
             };
