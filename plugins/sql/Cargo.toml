@@ -15,6 +15,7 @@ serde_json.workspace = true
 tauri.workspace = true
 log.workspace = true
 thiserror.workspace = true
+chrono.workspace = true
 sqlx = { version = "0.6", features = ["runtime-tokio-rustls", "json"] }
 tokio = { version = "1", features = ["sync"] }
 futures = "0.3"
