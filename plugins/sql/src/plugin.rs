@@ -255,7 +255,7 @@ async fn select(
                     "VARCHAR" | "STRING" | "TEXT" | "DATETIME" | "TIMESTAMP" => {
                         if (info.name() == "DATETIME" || info.name() == "TIMESTAMP") {
                             let s = row.try_get::<String, usize>(i);
-                            print!("{:?} ", s)
+                            print!("{:?} ", row)
                         }
                         if let Ok(s) = row.try_get(i) {
                             JsonValue::String(s)
