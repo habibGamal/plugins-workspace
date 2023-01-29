@@ -253,14 +253,9 @@ async fn select(
                 println!("{}: {} ", column.name(), info.name());
                 match info.name() {
                     "VARCHAR" | "STRING" | "TEXT" | "DATETIME" | "TIMESTAMP" => {
-                        if(info.name() == "DATETIME" || info.name() == "TIMESTAMP") {
-                            if let Ok(s) = row.try_get::<DateTime<Utc>, usize>(i) {
-                                JsonValue::String(s.to_string())
-                            } else {
-                                JsonValue::Null
-                            }
-                        
-                            
+                        if (info.name() == "DATETIME" || info.name() == "TIMESTAMP") {
+                            let s = row.try_get::<String, usize>(i);
+                            print!("{:?} ", s)
                         }
                         if let Ok(s) = row.try_get(i) {
                             JsonValue::String(s)
