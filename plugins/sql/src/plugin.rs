@@ -253,12 +253,12 @@ async fn select(
                 println!("{}: {} ", column.name(), info.name());
                 match info.name() {
                     "VARCHAR" | "STRING" | "TEXT" | "DATETIME" | "TIMESTAMP" => {
-                        println!("{}: {} ",i, row.try_get(i));
                         if let Ok(s) = row.try_get(i) {
                             JsonValue::String(s)
                         } else {
                             JsonValue::Null
                         }
+                        println!("{} ", s);
                     }
                     "BOOL" | "BOOLEAN" => {
                         if let Ok(b) = row.try_get(i) {
