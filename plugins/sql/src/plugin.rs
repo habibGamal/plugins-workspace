@@ -272,8 +272,7 @@ async fn select(
             } else {
                 match info.name() {
                     "DATETIME" | "TIMESTAMP" => {
-                        // println!("{:?}", row.try_get(i));
-                        if let Ok(d) = row.try_get::<DateTime<Utc>, usize>(i) {
+                        if let Ok(d) = row.try_get::<DateTime, usize>(i) {
                             JsonValue::String(d.to_string())
                         } else {
                             JsonValue::Null
