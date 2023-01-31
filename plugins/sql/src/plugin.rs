@@ -17,6 +17,8 @@ use tauri::{
     plugin::{Builder as PluginBuilder, TauriPlugin},
     AppHandle, Manager, RunEvent, Runtime, State,
 };
+use sqlx::decode::Decode;
+use sqlx::MySql;
 use tokio::sync::Mutex;
 
 use std::collections::HashMap;
@@ -45,6 +47,14 @@ pub enum Error {
     #[error("database {0} not loaded")]
     DatabaseNotLoaded(String),
 }
+
+impl Decode<'_, MySql> for DateTime<Utc> {
+    fn decode(value: MySqlValueRef<'_>) -> Result<Self, Box<dyn Error + Sync + Send>> {
+      let s = value.as_str()?;
+      let dt = Utc.datetime_from_str(s, "%Y-%m-%d %H:%M:%S")?;
+      Ok(dt)
+    }
+  }
 
 impl Serialize for Error {
     fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
