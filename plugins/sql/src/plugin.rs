@@ -1,10 +1,13 @@
 // Copyright 2021 Tauri Programme within The Commons Conservancy
 // SPDX-License-Identifier: Apache-2.0
 // SPDX-License-Identifier: MIT
-use chrono::{DateTime, Utc};
+use chrono::{DateTime,Utc};
 use futures::future::BoxFuture;
 use serde::{ser::Serializer, Deserialize, Serialize};
 use serde_json::Value as JsonValue;
+// use sqlx::decode::Decode;
+// use sqlx::mysql::MySqlValueRef;
+use sqlx::MySql;
 use sqlx::{
     error::BoxDynError,
     migrate::{
@@ -17,8 +20,6 @@ use tauri::{
     plugin::{Builder as PluginBuilder, TauriPlugin},
     AppHandle, Manager, RunEvent, Runtime, State,
 };
-use sqlx::decode::Decode;
-use sqlx::MySql;
 use tokio::sync::Mutex;
 
 use std::collections::HashMap;
@@ -48,14 +49,6 @@ pub enum Error {
     DatabaseNotLoaded(String),
 }
 
-impl Decode<'_, MySql> for DateTime<Utc> {
-    fn decode(value: MySqlValueRef<'_>) -> Result<Self, Box<dyn Error + Sync + Send>> {
-      let s = value.as_str()?;
-      let dt = Utc.datetime_from_str(s, "%Y-%m-%d %H:%M:%S")?;
-      Ok(dt)
-    }
-  }
-
 impl Serialize for Error {
     fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
     where
@@ -65,8 +58,25 @@ impl Serialize for Error {
     }
 }
 
-type Result<T> = std::result::Result<T, Error>;
+// datetime 
 
+// #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord)]
+// pub struct UtcDateTime(pub DateTime<Utc>);
+// impl Type<MySql> for UtcDateTime {
+//     fn type_info() -> MySqlTypeInfo {
+//         MySqlTypeInfo::binary(ColumnType::NewDecimal)
+//     }
+// }
+
+// impl<'r> Decode<'r, MySql> for UtcDateTime {
+//     fn decode(value: MySqlValueRef<'r>) -> std::result::Result<Self, BoxDynError> {
+//         let s = value.as_str()?;
+//         let dt = Utc.datetime_from_str(s, "%Y-%m-%d %H:%M:%S")?;
+//         Ok(UtcDateTime(dt))
+//     }
+// }
+
+type Result<T> = std::result::Result<T, Error>;
 #[cfg(feature = "sqlite")]
 /// Resolves the App's **file path** from the `AppHandle` context
 /// object
@@ -260,15 +270,15 @@ async fn select(
             let v = if info.is_null() {
                 JsonValue::Null
             } else {
-                println!("{}: {} ", column.name(), info.name());
                 match info.name() {
                     "DATETIME" | "TIMESTAMP" => {
-                        if let Ok(dt) = row.try_get::<chrono::DateTime<chrono::Utc>, usize>(i) {
-                          JsonValue::String(dt.to_rfc3339())
+                        // println!("{:?}", row.try_get(i));
+                        if let Ok(d) = row.try_get::<DateTime<Utc>, usize>(i) {
+                            JsonValue::String(d.to_string())
                         } else {
-                          JsonValue::Null
+                            JsonValue::Null
                         }
-                      }
+                    }
                     "VARCHAR" | "STRING" | "TEXT" => {
                         if let Ok(s) = row.try_get(i) {
                             JsonValue::String(s)
