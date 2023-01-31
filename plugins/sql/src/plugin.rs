@@ -1,7 +1,7 @@
 // Copyright 2021 Tauri Programme within The Commons Conservancy
 // SPDX-License-Identifier: Apache-2.0
 // SPDX-License-Identifier: MIT
-
+use chrono::{DateTime, Utc};
 use futures::future::BoxFuture;
 use serde::{ser::Serializer, Deserialize, Serialize};
 use serde_json::Value as JsonValue;
@@ -252,11 +252,14 @@ async fn select(
             } else {
                 println!("{}: {} ", column.name(), info.name());
                 match info.name() {
-                    "VARCHAR" | "STRING" | "TEXT" | "DATETIME" | "TIMESTAMP" => {
-                        if (info.name() == "DATETIME" || info.name() == "TIMESTAMP") {
-                            let s = row.try_get::<String, usize>(i);
-                            print!("{:?} ", row)
+                    "DATETIME" | "TIMESTAMP" => {
+                        if let Ok(dt) = row.try_get::<chrono::DateTime<chrono::Utc>, usize>(i) {
+                          JsonValue::String(dt.to_rfc3339())
+                        } else {
+                          JsonValue::Null
                         }
+                      }
+                    "VARCHAR" | "STRING" | "TEXT" => {
                         if let Ok(s) = row.try_get(i) {
                             JsonValue::String(s)
                         } else {
