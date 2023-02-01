@@ -5,8 +5,6 @@ use chrono::{DateTime,Utc};
 use futures::future::BoxFuture;
 use serde::{ser::Serializer, Deserialize, Serialize};
 use serde_json::Value as JsonValue;
-// use sqlx::decode::Decode;
-// use sqlx::mysql::MySqlValueRef;
 use sqlx::MySql;
 use sqlx::{
     error::BoxDynError,
@@ -57,24 +55,6 @@ impl Serialize for Error {
         serializer.serialize_str(self.to_string().as_ref())
     }
 }
-
-// datetime 
-
-// #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord)]
-// pub struct UtcDateTime(pub DateTime<Utc>);
-// impl Type<MySql> for UtcDateTime {
-//     fn type_info() -> MySqlTypeInfo {
-//         MySqlTypeInfo::binary(ColumnType::NewDecimal)
-//     }
-// }
-
-// impl<'r> Decode<'r, MySql> for UtcDateTime {
-//     fn decode(value: MySqlValueRef<'r>) -> std::result::Result<Self, BoxDynError> {
-//         let s = value.as_str()?;
-//         let dt = Utc.datetime_from_str(s, "%Y-%m-%d %H:%M:%S")?;
-//         Ok(UtcDateTime(dt))
-//     }
-// }
 
 type Result<T> = std::result::Result<T, Error>;
 #[cfg(feature = "sqlite")]
@@ -272,7 +252,7 @@ async fn select(
             } else {
                 match info.name() {
                     "DATETIME" | "TIMESTAMP" => {
-                        if let Ok(d) = row.try_get::<DateTime, usize>(i) {
+                        if let Ok(d) = row.try_get::<DateTime<Utc>, usize>(i) {
                             JsonValue::String(d.to_string())
                         } else {
                             JsonValue::Null
