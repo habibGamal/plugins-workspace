@@ -266,6 +266,13 @@ async fn select(
                             JsonValue::Null
                         }
                     }
+                    "TINYINT" => {
+                        if let Ok(n) = row.try_get::<i8, usize>(i) {
+                            JsonValue::Number(n.into())
+                        } else {
+                            JsonValue::Null
+                        }
+                    }
                     "VARCHAR" | "STRING" | "TEXT" => {
                         if let Ok(s) = row.try_get(i) {
                             JsonValue::String(s)
