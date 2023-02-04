@@ -247,7 +247,7 @@ async fn select(
         let mut value = HashMap::default();
         for (i, column) in row.columns().iter().enumerate() {
             let info = column.type_info();
-            print!("{:?}",column.type_info());
+            print!("{:?}",info.name());
             let v = if info.is_null() {
                 JsonValue::Null
             } else {
